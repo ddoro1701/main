@@ -1,29 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import config from './config';
+import React, { useState } from 'react';
 
 function App() {
-  const [packages, setPackages] = useState([]);
+    const [text, setText] = useState('');
 
-  useEffect(() => {
-    fetch(`${config.backendUrl}/package`)
-      .then(response => response.json())
-      .then(data => setPackages(data))
-      .catch(error => console.error('Error fetching packages:', error));
-  }, []);
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to the University Package Management System</h1>
-        <ul>
-          {packages.map(pkg => (
-            <li key={pkg.id}>{pkg.name}</li>
-          ))}
-        </ul>
-      </header>
-    </div>
-  );
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+        
+            const response = await fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Fehler beim Upload');
+            }
+
+            const result = await response.json();
+            setText(result.text);
+        } catch (error) {
+            console.error('Fehler:', error);
+            setText('Fehler beim Upload oder bei der Erkennung');
+        }
+    };
+
+    return (
+        <div className="App">
+            <header className="App-header">
+                <h1>Package Management System</h1>
+                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                <p>{text}</p>
+            </header>
+        </div>
+    );
 }
 
 export default App;
