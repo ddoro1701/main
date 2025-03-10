@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using WebApplication1.Backend.Models;
+using WebApplication1.Models; // Hinzufügen
+using WebApplication1.Services; // Hinzufügen
 
 namespace WebApplication1.Controllers
 {
@@ -11,10 +12,12 @@ namespace WebApplication1.Controllers
     public class PackageController : ControllerBase
     {
         private readonly ILogger<PackageController> _logger;
+        private readonly CosmosDbService _cosmosDbService; // Hinzufügen
 
-        public PackageController(ILogger<PackageController> logger)
+        public PackageController(ILogger<PackageController> logger, CosmosDbService cosmosDbService) // Hinzufügen
         {
             _logger = logger;
+            _cosmosDbService = cosmosDbService; // Hinzufügen
         }
 
         // GET: api/package
@@ -36,7 +39,7 @@ namespace WebApplication1.Controllers
 
         // POST: api/package
         [HttpPost]
-        public IActionResult CreatePackage([FromBody] Package package)
+        public async Task<IActionResult> CreatePackage([FromBody] Package package)
         {
             try
             {
@@ -45,7 +48,8 @@ namespace WebApplication1.Controllers
                     return BadRequest("Package is null.");
                 }
 
-                // Logic to create a package
+                await _cosmosDbService.AddItemAsync(package); // Hinzufügen
+
                 return CreatedAtAction(nameof(GetPackages), new { id = package.Id }, package);
             }
             catch (Exception ex)

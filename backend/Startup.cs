@@ -8,27 +8,30 @@ namespace WebApplication1
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+    
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
-
+    
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
-                {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
+                options.AddPolicy(
+                    "AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    }
+                );
             });
+            
+            // Removed Cosmos DB registrations as they are no longer needed.
         }
-
+    
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -40,17 +43,17 @@ namespace WebApplication1
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-
-            //app.UseHttpsRedirection();
+    
+            // app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseCors("AllowAll");
             app.UseAuthorization();
-
+    
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html"); // Für Client-seitiges Routing
+                endpoints.MapFallbackToFile("index.html"); // For client-side routing
             });
         }
     }
