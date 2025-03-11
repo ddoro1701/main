@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import EmailSelector from './components/EmailSelector';
 
 function App() {
     const [text, setText] = useState('');
@@ -11,7 +12,7 @@ function App() {
         formData.append('image', file);
 
         try {
-        
+
             const response = await fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/image/upload', {
                 method: 'POST',
                 body: formData
@@ -36,6 +37,7 @@ function App() {
                 <input type="file" accept="image/*" onChange={handleImageUpload} />
                 <p>{text}</p>
             </header>
+            <main>        <EmailSelector/> </main>
         </div>
     );
 }
