@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using WebApplication1.Models;
@@ -32,14 +30,11 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // Retrieve just the Lecturer_Email field from each Lecturer document
                 var emails = await _lecturers.Find(_ => true).Project(l => l.Email).ToListAsync();
-
                 return Ok(emails);
             }
             catch (Exception ex)
             {
-                // Return 500 with error message in case something goes wrong
                 return StatusCode(
                     500,
                     new
@@ -67,12 +62,43 @@ namespace WebApplication1.Controllers
             }
             catch (Exception ex)
             {
-                // Return 500 with error message in case something goes wrong
                 return StatusCode(
                     500,
                     new
                     {
                         error = "An error occurred while creating the lecturer.",
+                        details = ex.Message,
+                    }
+                );
+            }
+        }
+
+        // DELETE: api/lecturer/emails?email=someemail@example.com
+        // In TestController.cs (LecturerController)
+        [HttpDelete("emails")]
+        public async Task<IActionResult> DeleteEmail([FromQuery] string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new { error = "Email is required." });
+            }
+
+            try
+            {
+                var result = await _lecturers.DeleteOneAsync(l => l.Email == email);
+                if (result.DeletedCount == 0)
+                {
+                    return NotFound(new { error = $"No lecturer found with email {email}." });
+                }
+                return Ok(new { message = $"Email {email} deleted." }); // Return valid JSON
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        error = "An error occurred while deleting the lecturer email.",
                         details = ex.Message,
                     }
                 );

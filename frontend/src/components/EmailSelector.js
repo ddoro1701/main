@@ -5,7 +5,7 @@ const EmailSelector = () => {
   const [newEmail, setNewEmail] = useState('');
   const [selectedEmail, setSelectedEmail] = useState('');
 
-  // Beim Mounten werden die bestehenden E-Mails per GET abgefragt
+  // Load emails on mount
   useEffect(() => {
     fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/lecturer/emails')
       .then(res => {
@@ -15,14 +15,13 @@ const EmailSelector = () => {
         return res.json();
       })
       .then(data => {
-        // Erwartung: data ist ein Array von Strings, z.B. ["Daniel.Doroschenko@outlook.com", ...]
         setEmails(data);
         if (data.length > 0) setSelectedEmail(data[0]);
       })
       .catch(err => console.error('Error fetching emails:', err));
   }, []);
 
-  // Beim Hinzufügen einer neuen E-Mail wird ein POST-Aufruf ausgeführt
+  // POST a new email
   const handleAddEmail = () => {
     if (!newEmail.trim()) return;
     const lecturerData = { Email: newEmail };
@@ -39,12 +38,31 @@ const EmailSelector = () => {
         return res.json();
       })
       .then(addedLecturer => {
-        // Es wird angenommen, dass das zurückgegebene Objekt eine Eigenschaft "Email" enthält
         setEmails(prev => [...prev, addedLecturer.Email]);
         setSelectedEmail(addedLecturer.Email);
         setNewEmail('');
       })
       .catch(err => console.error('Error adding email:', err));
+  };
+
+  // DELETE the selected email
+  const handleDeleteEmail = () => {
+    if (!selectedEmail) return;
+    fetch(`https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/lecturer/emails?email=${encodeURIComponent(selectedEmail)}`, {
+      method: 'DELETE'
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Fehler beim Löschen der E-Mail');
+        }
+        return res.json();
+      })
+      .then(() => {
+        setEmails(prev => prev.filter(email => email !== selectedEmail));
+        const remaining = emails.filter(email => email !== selectedEmail);
+        setSelectedEmail(remaining.length > 0 ? remaining[0] : '');
+      })
+      .catch(err => console.error('Error deleting email:', err));
   };
 
   return (
@@ -66,6 +84,8 @@ const EmailSelector = () => {
         onChange={e => setNewEmail(e.target.value)}
       />
       <button onClick={handleAddEmail}>E-Mail hinzufügen</button>
+      <br />
+      <button onClick={handleDeleteEmail}>Ausgewählte E-Mail löschen</button>
     </div>
   );
 };
