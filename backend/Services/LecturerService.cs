@@ -1,16 +1,31 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Driver;
 using WebApplication1.Models;
 
 namespace WebApplication1.Services
 {
     public class LecturerService
     {
-        // Beispielmethode zum Abrufen eines Dozenten anhand des Namens
-        public async Task<Lecturer> GetLecturerByNameAsync(string name)
+        private readonly IMongoCollection<Lecturer> _lecturers;
+
+        public LecturerService(IConfiguration configuration)
         {
-            // Implementieren Sie die Logik zum Abrufen des Dozenten aus der Datenbank
-            // Dies ist nur ein Beispiel, passen Sie es an Ihre Anforderungen an
-            return await Task.FromResult(new Lecturer { Name = name, Email = "example@example.com" });
+            string connectionString = configuration["COSMOS_CONNECTION_STRING"]
+                ?? throw new Exception("COSMOS_CONNECTION_STRING is not set.");
+            string databaseName = configuration["COSMOS_DATABASE_NAME"]
+                ?? throw new Exception("COSMOS_DATABASE_NAME is not set.");
+
+            var client = new MongoClient(connectionString);
+            var database = client.GetDatabase(databaseName);
+            _lecturers = database.GetCollection<Lecturer>("Lecturer");
+        }
+
+        public async Task<List<Lecturer>> GetAllLecturersAsync()
+        {
+            return await _lecturers.Find(_ => true).ToListAsync();
         }
     }
 }

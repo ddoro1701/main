@@ -26,7 +26,7 @@ function App() {
             setText(result.text);
         } catch (error) {
             console.error('Fehler:', error);
-            setText('Fehler beim Upload oder bei der Erkennung');
+            setText('Error while uploading File');
         }
     };
 

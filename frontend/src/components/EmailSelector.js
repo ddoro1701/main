@@ -4,8 +4,9 @@ const EmailSelector = () => {
   const [emails, setEmails] = useState([]);
   const [newEmail, setNewEmail] = useState('');
   const [selectedEmail, setSelectedEmail] = useState('');
+  const [shippingProvider, setShippingProvider] = useState('Amazon');
+  const [providerDescription, setProviderDescription] = useState(''); // Empty by default
 
-  // Load emails on mount
   useEffect(() => {
     fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/lecturer/emails')
       .then(res => {
@@ -65,9 +66,14 @@ const EmailSelector = () => {
       .catch(err => console.error('Error deleting email:', err));
   };
 
+  const handleUseEmail = () => {
+    // Customize the behavior for the "Use Email" button as needed.
+    alert(`Using email: ${selectedEmail}`);
+  };
+
   return (
     <div>
-      <h2>Wähle eine E-Mail</h2>
+      <h2>Choose an E-Mail</h2>
       <select
         value={selectedEmail}
         onChange={e => setSelectedEmail(e.target.value)}
@@ -76,16 +82,52 @@ const EmailSelector = () => {
           <option key={index} value={email}>{email}</option>
         ))}
       </select>
-      <h3>Neue E-Mail hinzufügen</h3>
+      <h3>Add new E-Mail</h3>
       <input
         type="email"
-        placeholder="Neue E-Mail"
+        placeholder="New E-Mail"
         value={newEmail}
         onChange={e => setNewEmail(e.target.value)}
       />
-      <button onClick={handleAddEmail}>E-Mail hinzufügen</button>
+      <button onClick={handleAddEmail}>Add E-Mail</button>
       <br />
-      <button onClick={handleDeleteEmail}>Ausgewählte E-Mail löschen</button>
+      <button onClick={handleDeleteEmail}>Delete chosen E-Mail</button>
+
+      {/* Shipping Provider Section */}
+      <div style={{ marginTop: '1em' }}>
+        <h3>Choose a Shipping Provider</h3>
+        <select
+          value={shippingProvider}
+          onChange={e => setShippingProvider(e.target.value)}
+        >
+          <option value="Royal Mail">Royal Mail</option>
+          <option value="Amazon">Amazon</option>
+          <option value="DPD">DPD</option>
+          <option value="FedEx">FedEx</option>
+          <option value="UPS">UPS</option>
+          <option value="Evri">Evri</option>
+          <option value="Other">Other</option>
+        </select>
+
+        {/* Empty Description Box */}
+        <div style={{ marginTop: '1em' }}>
+          <h4>Enter additional information</h4>
+          <textarea
+            placeholder="Type your custom information here..."
+            value={providerDescription}
+            onChange={e => setProviderDescription(e.target.value)}
+            style={{ width: '100%', height: '80px', padding: '0.5em' }}
+          ></textarea>
+        </div>
+      </div>
+
+      {/* Additional block: If an email is found, display it and show "Use Email" button */}
+      {selectedEmail && (
+        <div style={{ marginTop: '1em' }}>
+          <p>Found Email: {selectedEmail}</p>
+          <button onClick={handleUseEmail}>Use Email</button>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,20 +3,25 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApplication1.Services;
 
 namespace WebApplication1
 {
     public class Startup
     {
         public IConfiguration Configuration { get; }
-    
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-    
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<LecturerService>();
+            services.AddSingleton<LecturerMatcher>();  // if using LecturerMatcher that depends on LecturerService
+
+
             services.AddControllers();
             services.AddCors(options =>
             {
@@ -28,10 +33,10 @@ namespace WebApplication1
                     }
                 );
             });
-            
+
             // Removed Cosmos DB registrations as they are no longer needed.
         }
-    
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -43,13 +48,13 @@ namespace WebApplication1
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
-    
+
             // app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseCors("AllowAll");
             app.UseAuthorization();
-    
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
