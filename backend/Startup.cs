@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApplication1.Services;
+using System.Text.Json;
 
 namespace WebApplication1
 {
@@ -20,9 +21,16 @@ namespace WebApplication1
         {
             services.AddSingleton<LecturerService>();
             services.AddSingleton<LecturerMatcher>();  // if using LecturerMatcher that depends on LecturerService
+            services.AddSingleton<PackageService>();  // Register the PackageService
 
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                // Ensure ISO 8601 formatting (default) and UTC handling.
+                options.JsonSerializerOptions.WriteIndented = true;
+            });
 
-            services.AddControllers();
             services.AddCors(options =>
             {
                 options.AddPolicy(
@@ -33,8 +41,6 @@ namespace WebApplication1
                     }
                 );
             });
-
-            // Removed Cosmos DB registrations as they are no longer needed.
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

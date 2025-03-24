@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using WebApplication1.Models; // Hinzufügen
-using WebApplication1.Services; // Hinzufügen
+using System.Threading.Tasks;
+using WebApplication1.Models;
+using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
 {
@@ -11,52 +9,69 @@ namespace WebApplication1.Controllers
     [Route("api/[controller]")]
     public class PackageController : ControllerBase
     {
-        private readonly ILogger<PackageController> _logger;
-        private readonly CosmosDbService _cosmosDbService; // Hinzufügen
+        private readonly PackageService _packageService;
 
-        public PackageController(ILogger<PackageController> logger, CosmosDbService cosmosDbService) // Hinzufügen
+        public PackageController(PackageService packageService)
         {
-            _logger = logger;
-            _cosmosDbService = cosmosDbService; // Hinzufügen
+            _packageService = packageService;
         }
 
-        // GET: api/package
-        [HttpGet]
-        public IActionResult GetPackages()
+        [HttpPost("send-email")]
+        public async Task<IActionResult> SendEmailToLecturer([FromBody] Package package)
         {
-            try
+            if (package == null || string.IsNullOrWhiteSpace(package.LecturerEmail))
             {
-                // Logic to get packages
-                var packages = new List<Package>();
-                return Ok(packages);
+                return BadRequest("Missing required package data.");
             }
-            catch (Exception ex)
+
+            // Ensure CollectionDate only contains the date part (or defaults to current UTC date)
+            if (package.CollectionDate.HasValue)
             {
-                _logger.LogError(ex, "Error occurred while getting packages.");
-                return StatusCode(500, "Internal server error");
+                package.CollectionDate = package.CollectionDate.Value.Date;
             }
+            else
+            {
+                package.CollectionDate = DateTime.UtcNow.Date;
+            }
+
+            // Set default status if not provided
+            if (string.IsNullOrWhiteSpace(package.Status))
+            {
+                package.Status = "Received";
+            }
+
+            await _packageService.AddPackageAsync(package);
+            return Ok(new { message = "Package record created successfully." });
         }
-
-        // POST: api/package
-        [HttpPost]
-        public async Task<IActionResult> CreatePackage([FromBody] Package package)
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllPackages()
         {
-            try
+            var packages = await _packageService.GetAllPackagesAsync();
+            return Ok(packages);
+        }
+        [HttpPost("update-status")]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Id))
             {
-                if (package == null)
-                {
-                    return BadRequest("Package is null.");
-                }
-
-                await _cosmosDbService.AddItemAsync(package); // Hinzufügen
-
-                return CreatedAtAction(nameof(GetPackages), new { id = package.Id }, package);
+                return BadRequest(new { message = "Invalid package id." });
             }
-            catch (Exception ex)
+
+            // Update the package status in the Packages collection.
+            await _packageService.UpdatePackageStatusAsync(request.Id, request.Status);
+            return Ok(new { message = "Status updated successfully." });
+        }
+        [HttpDelete("delete-collected")]
+        public async Task<IActionResult> DeleteCollected([FromBody] DeleteCollectedRequest request)
+        {
+            if (request == null || request.Ids == null || request.Ids.Length == 0)
             {
-                _logger.LogError(ex, "Error occurred while creating package.");
-                return StatusCode(500, "Internal server error");
+                return BadRequest(new { message = "No IDs provided." });
             }
+
+            await _packageService.DeleteCollectedAsync(request.Ids);
+            return Ok(new { message = "Collected entries deleted." });
         }
     }
+
 }

@@ -8,21 +8,25 @@ namespace WebApplication1.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = string.Empty; // Initialisieren
+        public string? Id { get; set; } // Auto-generated
 
-        [BsonElement("RecipientName")]
-        public string RecipientName { get; set; } = string.Empty; // Initialisieren
+        [BsonElement("Lecturer_Email")]
+        public string LecturerEmail { get; set; } = string.Empty;
 
-        [BsonElement("TrackingNumber")]
-        public string TrackingNumber { get; set; } = string.Empty; // Initialisieren
+        [BsonElement("ItemCount")]
+        public int ItemCount { get; set; }
 
-        [BsonElement("ArrivalDate")]
-        public DateTime ArrivalDate { get; set; }
+        [BsonElement("ShippingProvider")]
+        public string? ShippingProvider { get; set; } = string.Empty;
 
-        [BsonElement("LecturerEmail")]
-        public string LecturerEmail { get; set; } = string.Empty; // Initialisieren
+        [BsonElement("AdditionalInfo")]
+        public string? AdditionalInfo { get; set; } = string.Empty;
+
+        [BsonElement("CollectionDate")]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Utc)] // Ensure UTC format
+        public DateTime? CollectionDate { get; set; }
 
         [BsonElement("Status")]
-        public string Status { get; set; } = "Pending"; // Standardstatus: "Pending"
+        public string? Status { get; set; }
     }
 }

@@ -30,5 +30,11 @@ namespace WebApplication1.Services
             }
             return results;
         }
+        public async Task AddItemAsync<T>(T item, string containerName)
+        {
+            // For simplicity we use the container configured in the constructor.
+            // If containerName is different than the one configured, adjust here.
+            await _container.CreateItemAsync(item);
+        }
     }
 }

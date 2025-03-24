@@ -1,37 +1,67 @@
 body {
-  margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;  
-  -moz-osx-font-smoothing: grayscale;  
-  background-color: #e8eff5;       /* Light blue background */
-  text-align: center;             /* Center text only */
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  text-align: center;
+  padding-bottom: 80px; /* space for footer */
 }
 
-header,
-main,
-footer {
-  width: 100%;
-}
-
+/* Header Styles */
 header {
   background-color: #1e3a5f;
   color: #f0f8ff;
-  padding: 1em 0;
-  text-align: center;             /* Center header text */
+  padding: 1.5em 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* Main Content */
 main {
-  padding: 1em;
-  text-align: center;             /* Center main text */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2em;
 }
 
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f0f0;
+}
+
+/* Buttons */
+button {
+  background-color: #1e3a5f;
+  color: #f0f8ff;
+  border: none;
+  padding: 10px 16px;
+  margin: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #16324f;
+}
+
+/* Footer */
 footer {
-  background-color: #333;
-  color: #fff;
-  text-align: center;             /* Center footer text */
+  background-color: #1e3a5f;
+  color: #f0f8ff;
   padding: 1em 0;
   position: fixed;
-  width: 100%;
   bottom: 0;
+  width: 100%;
+  font-size: 0.9em;
 }

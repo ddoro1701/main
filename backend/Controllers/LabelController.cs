@@ -9,21 +9,25 @@ namespace WebApplication1.Controllers
     public class LabelController : ControllerBase
     {
         private readonly LecturerMatcher _matcher;
-        
+
         public LabelController(LecturerMatcher matcher)
         {
             _matcher = matcher;
         }
-        
+
         [HttpPost("find-email")]
         public async Task<IActionResult> FindEmail([FromBody] string ocrText)
         {
-            var email = await _matcher.FindLecturerEmailAsync(ocrText);
-            if (email is null)
+            if (string.IsNullOrWhiteSpace(ocrText))
             {
-                return NotFound("No matching lecturer email found.");
+                return BadRequest("OCR text is empty. Please upload an image to generate OCR text.");
             }
-            return Ok(new { email });
+
+            // Process the OCR text and use LecturerMatcher to determine the email.
+            var email = await _matcher.FindLecturerEmailAsync(ocrText);
+            return email == null
+                   ? NotFound("Kein passendes Lecturer-Email gefunden.")
+                   : Ok(new { email });
         }
     }
 }

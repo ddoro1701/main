@@ -4,6 +4,10 @@ object-assign
 @license MIT
 */
 
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+
+/*! sheetjs (C) 2013-present SheetJS -- http://sheetjs.com */
+
 /** @license React v0.20.2
  * scheduler.production.min.js
  *
