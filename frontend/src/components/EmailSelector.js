@@ -110,7 +110,9 @@ const EmailSelector = ({ ocrText }) => {
         return res.json();
       })
       .then(data => {
-        alert("Email sent successfully.");
+        alert("Package record created successfully. Email sent to lecturer.");
+        fetchPackages(); // Call the fetchPackages function to update the log
+
       })
       .catch(err => {
         console.error('Error sending package data:', err);
@@ -137,7 +139,9 @@ const EmailSelector = ({ ocrText }) => {
       return res.json();
     })
     .then(data => {
-      alert("Package record created successfully using chosen email.");
+      alert("Package record created successfully. Email sent to chosen lecturer.");
+      fetchPackages(); // Call the fetchPackages function to update the log
+
     })
     .catch(err => {
       console.error('Error sending package data with chosen email:', err);
@@ -148,7 +152,7 @@ const EmailSelector = ({ ocrText }) => {
     <div className="email-selector">
       {/* Send Email/Log Information section above email selection */}
       <div className="send-email-section">
-      <p>Suggested Lecturer Email: {recognizedEmail || "None"}</p>        <p>Click below to send email and log information.</p>
+      <p>Suggested Lecturer Email: {recognizedEmail || "None"}</p>
         <button onClick={handleSendEmail}>Send Email/Log Information</button>
       </div>
 

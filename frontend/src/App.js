@@ -39,7 +39,7 @@ function App() {
             </header>
             {/* Directly include the components */}
             <EmailSelector ocrText={text} />
-            <PackageLog />
+            <PackageLog packages={packages} fetchPackages={fetchPackages} />
         </div>
     );
 }
