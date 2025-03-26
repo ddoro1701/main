@@ -1,10 +1,11 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApplication1.Services;
-using System.Text.Json;
+
 
 namespace WebApplication1
 {
@@ -19,6 +20,8 @@ namespace WebApplication1
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<EmailService>();
+
             services.AddSingleton<LecturerService>();
             services.AddSingleton<LecturerMatcher>();  // if using LecturerMatcher that depends on LecturerService
             services.AddSingleton<PackageService>();  // Register the PackageService

@@ -33,7 +33,7 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <h1>Package Management System</h1>
+                <h1>Wrexham University Package Management System</h1>
                 <input type="file" accept="image/*" onChange={handleImageUpload} />
                 <p>{text}</p>
             </header>
