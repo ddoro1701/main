@@ -192,7 +192,17 @@ function LogTable({ data, onToggleStatus, onDeleteCollected }) {
                     {page.map(row => {
                         prepareRow(row);
                         return (
-                            <tr {...row.getRowProps()} style={{ borderBottom: '1px solid #eee' }}>
+                            <tr
+                                {...row.getRowProps()}
+                                style={{
+                                    backgroundColor: row.original.status === 'Collected'
+                                        ? '#d4edda' // Light green for Collected
+                                        : row.original.status === 'Received'
+                                            ? '#fff3cd' // Light orange for Received
+                                            : 'transparent',
+                                    borderBottom: '1px solid #eee',
+                                }}
+                            >
                                 {row.cells.map(cell => (
                                     <td {...cell.getCellProps()} style={{ padding: '8px' }}>
                                         {cell.render('Cell')}

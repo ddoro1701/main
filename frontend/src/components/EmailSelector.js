@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './EmailSelector.css';
 
-const EmailSelector = ({ ocrText }) => {
+const EmailSelector = ({ ocrText, fetchPackages }) => {
   const [emails, setEmails] = useState([]);
   const [fullName, setFullName] = useState('');
   const [newEmail, setNewEmail] = useState('');
@@ -104,20 +104,19 @@ const EmailSelector = ({ ocrText }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(packageData),
-    })
+  })
       .then(res => {
-        if (!res.ok) throw new Error('Error sending package data');
-        return res.json();
+          if (!res.ok) throw new Error('Error sending package data');
+          return res.json();
       })
       .then(data => {
-        alert("Package record created successfully. Email sent to lecturer.");
-        fetchPackages(); // Call the fetchPackages function to update the log
-
+          alert("Package record created successfully. Email sent to lecturer.");
+          fetchPackages(); // Call the fetchPackages function to update the log
       })
       .catch(err => {
-        console.error('Error sending package data:', err);
+          console.error('Error sending package data:', err);
       });
-  };
+};
 
   // New send email button based solely on the chosen email.
   const handleSendEmailWithChosenEmail = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import EmailSelector from './components/EmailSelector';
 import PackageLog from './components/PackageLog';
 
@@ -30,18 +30,35 @@ function App() {
         }
     };
 
-    return (
-        <div className="App">
-            <header className="App-header">
-                <h1>Wrexham University Package Management System</h1>
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                <p>{text}</p>
-            </header>
-            {/* Directly include the components */}
-            <EmailSelector ocrText={text} />
-            <PackageLog packages={packages} fetchPackages={fetchPackages} />
-        </div>
-    );
-}
+const [packages, setPackages] = useState([]);
 
+// Function to fetch the updated package list
+    // Verwende useCallback, um fetchPackages stabil zu halten
+    const fetchPackages = useCallback(() => {
+        fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/all')
+            .then(res => res.json())
+            .then(data => {
+                setPackages(data);
+            })
+            .catch(err => console.error('Error fetching packages:', err));
+    }, []); // Keine Abhängigkeiten, da die Funktion stabil bleiben soll
+
+    // useEffect wird nur einmal beim Mount ausgeführt
+    useEffect(() => {
+        fetchPackages();
+    }, [fetchPackages]);
+
+return (
+    <div className="App">
+        <header className="App-header">
+            <h1>Wrexham University Package Management System</h1>
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
+        </header>
+        {/* Pass fetchPackages and packages to the components */}
+        <EmailSelector fetchPackages={fetchPackages} />
+        <PackageLog packages={packages} fetchPackages={fetchPackages} />
+    </div>
+);
+
+}
 export default App;
