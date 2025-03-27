@@ -104,48 +104,51 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(packageData),
-  })
+    })
       .then(res => {
-          if (!res.ok) throw new Error('Error sending package data');
-          return res.json();
+        if (!res.ok) throw new Error('Error sending package data');
+        return res.json();
       })
       .then(data => {
-          alert("Package record created successfully. Email sent to lecturer.");
-          fetchPackages(); // Call the fetchPackages function to update the log
+        alert("Package record created successfully. Email sent to lecturer.");
+        fetchPackages(); // Update the package log
+        setItemCount(1); // Reset the item count to 1
+        setProviderDescription(""); // Clear the additional information
       })
       .catch(err => {
-          console.error('Error sending package data:', err);
+        console.error('Error sending package data:', err);
       });
-};
+  };
 
   // New send email button based solely on the chosen email.
   const handleSendEmailWithChosenEmail = () => {
-    const packageData = {
-      LecturerEmail: selectedEmail, // use the chosen email explicitly
-      ItemCount: parseInt(itemCount, 10),
-      ShippingProvider: shippingProvider,
-      AdditionalInfo: providerDescription,
-      CollectionDate: new Date(),
-    };
+  const packageData = {
+    LecturerEmail: selectedEmail,
+    ItemCount: parseInt(itemCount, 10),
+    ShippingProvider: shippingProvider,
+    AdditionalInfo: providerDescription,
+    CollectionDate: new Date(),
+  };
 
-    fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(packageData),
-    })
+  fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(packageData),
+  })
     .then(res => {
       if (!res.ok) throw new Error('Error sending package data with chosen email');
       return res.json();
     })
     .then(data => {
       alert("Package record created successfully. Email sent to chosen lecturer.");
-      fetchPackages(); // Call the fetchPackages function to update the log
-
+      fetchPackages(); // Update the package log
+      setItemCount(1); // Reset the item count to 1
+      setProviderDescription(""); // Clear the additional information
     })
     .catch(err => {
       console.error('Error sending package data with chosen email:', err);
     });
-  };
+};
 
   return (
     <div className="email-selector">

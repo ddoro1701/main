@@ -31,8 +31,20 @@ namespace WebApplication1.Services
                         <p><strong>Item Count:</strong> {itemCount}</p>
                         <p><strong>Shipping Provider:</strong> {shippingProvider}</p>
                         <p><strong>Additional Information:</strong> {additionalInfo}</p>
-                        <p></p>
+                        <p>Opening Hours:</p>
+                        <p>10am - 12pm</p>
+                        <p>2pm - 3pm</p>
+                        
+                        <p>Closed for Lunch</p>
+                        <p>12pm - 2pm</p>
 
+                        <p>Outgoing mail <strong>NO</strong> later than 2.30pm</p>
+
+
+
+                        <p>Thank you for your cooperation.</p>
+                        <p>Best regards,</p>
+                        
                     </body>
                 </html>";
 
