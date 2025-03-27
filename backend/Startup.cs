@@ -21,7 +21,6 @@ namespace WebApplication1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<EmailService>();
-
             services.AddSingleton<LecturerService>();
             services.AddSingleton<LecturerMatcher>();  // if using LecturerMatcher that depends on LecturerService
             services.AddSingleton<PackageService>();  // Register the PackageService

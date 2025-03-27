@@ -10,10 +10,14 @@ namespace WebApplication1.Controllers
     public class PackageController : ControllerBase
     {
         private readonly PackageService _packageService;
+        private readonly EmailService _emailService;
 
-        public PackageController(PackageService packageService)
+
+        public PackageController(PackageService packageService, EmailService emailService)
         {
             _packageService = packageService;
+            _emailService = emailService;
+
         }
 
         [HttpPost("send-email")]
@@ -41,6 +45,16 @@ namespace WebApplication1.Controllers
             }
 
             await _packageService.AddPackageAsync(package);
+
+            // Send the email (update the subject as needed)
+            await _emailService.SendPackageEmailAsync(
+                toEmail: package.LecturerEmail,
+                subject: "Package details",
+                itemCount: package.ItemCount,
+                shippingProvider: package.ShippingProvider,
+                additionalInfo: package.AdditionalInfo
+            );
+
             return Ok(new { message = "Package record created successfully." });
         }
         [HttpGet("all")]

@@ -31,6 +31,8 @@ namespace WebApplication1.Services
                         <p><strong>Item Count:</strong> {itemCount}</p>
                         <p><strong>Shipping Provider:</strong> {shippingProvider}</p>
                         <p><strong>Additional Information:</strong> {additionalInfo}</p>
+                        <p></p>
+
                     </body>
                 </html>";
 
