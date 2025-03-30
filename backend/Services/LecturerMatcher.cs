@@ -10,7 +10,7 @@ namespace WebApplication1.Services
     public class LecturerMatcher
     {
         private readonly LecturerService _lecturerService;
-        private const int DistanceThreshold = 6;
+        private const int DistanceThreshold = 12;
 
         public LecturerMatcher(LecturerService lecturerService)
         {
