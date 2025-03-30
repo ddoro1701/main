@@ -154,7 +154,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
     <div className="email-selector">
       {/* Send Email/Log Information section above email selection */}
       <div className="send-email-section">
-      <p>Suggested Lecturer Email: {recognizedEmail || "None"}</p>
+      <p>Suggested Lecturer Email: {recognizedEmail}</p>
         <button onClick={handleSendEmail}>Send Email/Log Information</button>
       </div>
 

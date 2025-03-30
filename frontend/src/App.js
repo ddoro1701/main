@@ -8,27 +8,28 @@ function App() {
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
         if (!file) return;
-
+      
         const formData = new FormData();
         formData.append('image', file);
-
+      
         try {
-            const response = await fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/image/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Fehler beim Upload');
-            }
-
-            const result = await response.json();
-            setText(result.text);
+          const response = await fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/image/upload', {
+            method: 'POST',
+            body: formData,
+          });
+      
+          if (!response.ok) {
+            throw new Error('Error uploading image');
+          }
+      
+          const result = await response.json();
+          console.log("OCR Text from /api/image/upload:", result.text);
+          setText(result.text); // OCR text is stored in the `text` state
         } catch (error) {
-            console.error('Fehler:', error);
-            setText('Error while uploading File');
+          console.error('Error:', error);
+          setText('Error while uploading File');
         }
-    };
+      };
 
 const [packages, setPackages] = useState([]);
 
@@ -55,7 +56,7 @@ return (
             <input type="file" accept="image/*" onChange={handleImageUpload} />
         </header>
         {/* Pass fetchPackages and packages to the components */}
-        <EmailSelector fetchPackages={fetchPackages} />
+        <EmailSelector ocrText={text} fetchPackages={fetchPackages} />
         <PackageLog packages={packages} fetchPackages={fetchPackages} />
     </div>
 );
