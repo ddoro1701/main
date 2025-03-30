@@ -65,3 +65,14 @@ footer {
   width: 100%;
   font-size: 0.9em;
 }
+
+/* Mobile view */
+@media (max-width: 600px) {
+  .email-selector {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .email-container {
+    flex-direction: column;
+  }
+}

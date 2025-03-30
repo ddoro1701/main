@@ -27,25 +27,30 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
 
   // Call lecturer matcher when OCR text changes.
   useEffect(() => {
-    console.log("New OCR text received:", ocrText);
+    console.log("[EmailSelector] useEffect triggered with OCR text:", ocrText);
     if (ocrText && ocrText.trim()) {
+      console.log("Calling /api/label/find-email with OCR text:", ocrText);
       fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/label/find-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Ensure that ocrText is sent as a JSON string literal.
         body: JSON.stringify(ocrText)
       })
       .then(res => {
-          if (!res.ok) throw new Error("Kein passendes Lecturer-Email gefunden.");
-          return res.json();
+        console.log("Response from find-email:", res);
+        if (!res.ok) throw new Error("Kein passendes Lecturer-Email gefunden.");
+        return res.json();
       })
       .then(data => {
-          console.log("Matched OCR email:", data.email);
-          setRecognizedEmail(data.email);
+        console.log("Matched OCR email:", data.email);
+        setRecognizedEmail(data.email);
       })
       .catch(err => {
-          console.error('Error finding email:', err);
-          setRecognizedEmail('');
+        console.error('Error finding email:', err);
+        setRecognizedEmail('');
       });
+    } else {
+      console.log("No valid OCR text provided.");
     }
   }, [ocrText]);
 
