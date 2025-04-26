@@ -95,10 +95,14 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
     .catch(err => console.error('Error deleting email:', err));
   };
 
-  // Existing send using recognizedEmail (preferred if available)
   const handleSendEmail = () => {
+    if (!recognizedEmail) {
+      alert("No suggested email available to send.");
+      return;
+    }
+  
     const packageData = {
-      LecturerEmail: selectedEmail,
+      LecturerEmail: recognizedEmail, // Use the suggested email explicitly
       ItemCount: parseInt(itemCount, 10),
       ShippingProvider: shippingProvider,
       AdditionalInfo: providerDescription,
@@ -115,7 +119,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
         return res.json();
       })
       .then(data => {
-        alert("Package record created successfully. Email sent to lecturer.");
+        alert("Package record created successfully. Email sent to the suggested lecturer.");
         fetchPackages(); // Update the package log
         setItemCount(1); // Reset the item count to 1
         setProviderDescription(""); // Clear the additional information

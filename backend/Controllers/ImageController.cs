@@ -9,7 +9,6 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace WebApplication1.Backend.Controllers
 {
     [Route("api/[controller]")]
@@ -18,11 +17,13 @@ namespace WebApplication1.Backend.Controllers
     {
         private readonly string subscriptionKey;
         private readonly string endpoint;
+        private readonly bool isStudentAccount;
 
         public ImageController(IConfiguration configuration)
         {
             subscriptionKey = configuration["AzureComputerVision:SubscriptionKey"];
             endpoint = configuration["AzureComputerVision:Endpoint"];
+            isStudentAccount = bool.Parse(configuration["AzureAccount:IsStudentAccount"]);
         }
 
         [HttpPost("upload")]
@@ -38,14 +39,27 @@ namespace WebApplication1.Backend.Controllers
                 // Load the image using ImageSharp
                 var img = await Image.LoadAsync<Rgba32>(inputStream);
 
-                // Preprocessing steps
+                // Check if the image is too large and resize if necessary (only for student accounts)
+                const int maxWidth = 1024;
+                const int maxHeight = 768;
+
+                if (isStudentAccount && (img.Width > maxWidth || img.Height > maxHeight))
+                {
+                    img.Mutate(x => x.Resize(new ResizeOptions
+                    {
+                        Mode = ResizeMode.Max,
+                        Size = new Size(maxWidth, maxHeight)
+                    }));
+                    Console.WriteLine($"Image resized to: {img.Width}x{img.Height}");
+                }
+
+                // Additional preprocessing steps
                 img.Mutate(x =>
                 {
                     x.AutoOrient(); // Correct orientation
                     x.Contrast(1.2f); // Increase contrast
                     x.Brightness(1.1f); // Slightly increase brightness
                     x.Grayscale(); // Convert to grayscale
-                    x.Crop(new Rectangle(0, 0, img.Width, img.Height)); // Crop (adjust as needed)
                 });
 
                 // Save the processed image to a memory stream
