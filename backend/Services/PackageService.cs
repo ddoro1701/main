@@ -35,7 +35,6 @@ namespace WebApplication1.Services
 
         public async Task UpdatePackageStatusAsync(string id, string status)
         {
-            // Ensure your Package model has an "Id" property
             var filter = Builders<Package>.Filter.Eq(p => p.Id, id);
             var update = Builders<Package>.Update.Set(p => p.Status, status);
             await _packages.UpdateOneAsync(filter, update);

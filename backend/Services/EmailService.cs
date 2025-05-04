@@ -57,7 +57,7 @@ namespace WebApplication1.Services
 
                 // Create the email message
                 var emailMessage = new EmailMessage(
-                    senderAddress: "DoNotReply@c82bcbff-b02e-4e6f-af44-059a9fd518f9.azurecomm.net", // Replace with your verified sender address
+                    senderAddress: "DoNotReply@c82bcbff-b02e-4e6f-af44-059a9fd518f9.azurecomm.net",
                     content: emailContent,
                     recipients: new EmailRecipients(new List<EmailAddress> { new EmailAddress(toEmail) })
                 );

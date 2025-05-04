@@ -10,17 +10,19 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
   const [shippingProvider, setShippingProvider] = useState('Amazon');
   const [providerDescription, setProviderDescription] = useState('');
   const [itemCount, setItemCount] = useState(1);
+  const [loading, setLoading] = useState(false); // Added loading state
+  const [error, setError] = useState(''); // Added error state
 
   // Load lecturer emails when component mounts.
   useEffect(() => {
     fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/lecturer/emails')
       .then(res => {
-        if (!res.ok) throw new Error("Fehler beim Abrufen der E-Mails");
+        if (!res.ok) throw new Error("Error fetching emails");
         return res.json();
       })
       .then(data => {
         setEmails(data);
-        if(data.length > 0) setSelectedEmail(data[0]);
+        if (data.length > 0) setSelectedEmail(data[0]);
       })
       .catch(err => console.error('Error fetching emails:', err));
   }, []);
@@ -29,34 +31,37 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
   useEffect(() => {
     console.log("[EmailSelector] useEffect triggered with OCR text:", ocrText);
     if (ocrText && ocrText.trim()) {
+      setLoading(true); // Start loading
+      setError(''); // Clear previous errors
       console.log("Calling /api/label/find-email with OCR text:", ocrText);
+
       fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/label/find-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Ensure that ocrText is sent as a JSON string literal.
-        body: JSON.stringify(ocrText)
+        body: JSON.stringify(ocrText),
       })
-      .then(res => {
-        console.log("Response from find-email:", res);
-        if (!res.ok) throw new Error("Kein passendes Lecturer-Email gefunden.");
-        return res.json();
-      })
-      .then(data => {
-        console.log("Matched OCR email:", data.email);
-        setRecognizedEmail(data.email);
-      })
-      .catch(err => {
-        console.error('Error finding email:', err);
-        setRecognizedEmail('');
-      });
-    } else {
-      console.log("No valid OCR text provided.");
+        .then(res => {
+          console.log("Response from find-email:", res);
+          if (!res.ok) throw new Error("No matching lecturer email found.");
+          return res.json();
+        })
+        .then(data => {
+          console.log("Matched OCR email:", data.email);
+          setRecognizedEmail(data.email);
+        })
+        .catch(err => {
+          console.error('Error finding email:', err);
+          setError('No matching lecturer email found.');
+        })
+        .finally(() => {
+          setLoading(false); // Stop loading
+        });
     }
   }, [ocrText]);
 
   const handleAddEmail = () => {
     if (!newEmail.trim() || !fullName.trim()) {
-      alert("Bitte füllen Sie sowohl den vollen Namen als auch die E-Mail aus.");
+      alert("Please fill out the full name and the email");
       return;
     }
     const lecturerData = { Name: fullName, Email: newEmail };
@@ -65,17 +70,17 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(lecturerData)
     })
-    .then(res => {
-      if (!res.ok) throw new Error('Fehler beim Hinzufügen der E-Mail');
-      return res.json();
-    })
-    .then(addedLecturer => {
-      setEmails(prev => [...prev, addedLecturer.Email]);
-      setSelectedEmail(addedLecturer.Email);
-      setFullName('');
-      setNewEmail('');
-    })
-    .catch(err => console.error('Error adding email:', err));
+      .then(res => {
+        if (!res.ok) throw new Error('Fehler beim Hinzufügen der E-Mail');
+        return res.json();
+      })
+      .then(addedLecturer => {
+        setEmails(prev => [...prev, addedLecturer.Email]);
+        setSelectedEmail(addedLecturer.Email);
+        setFullName('');
+        setNewEmail('');
+      })
+      .catch(err => console.error('Error adding email:', err));
   };
 
   const handleDeleteEmail = () => {
@@ -83,16 +88,16 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
     fetch(`https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/lecturer/emails?email=${encodeURIComponent(selectedEmail)}`, {
       method: 'DELETE'
     })
-    .then(res => {
-      if (!res.ok) throw new Error('Fehler beim Löschen der E-Mail');
-      return res.json();
-    })
-    .then(() => {
-      setEmails(prev => prev.filter(email => email !== selectedEmail));
-      const remaining = emails.filter(email => email !== selectedEmail);
-      setSelectedEmail(remaining.length > 0 ? remaining[0] : '');
-    })
-    .catch(err => console.error('Error deleting email:', err));
+      .then(res => {
+        if (!res.ok) throw new Error('Error deleting email');
+        return res.json();
+      })
+      .then(() => {
+        setEmails(prev => prev.filter(email => email !== selectedEmail));
+        const remaining = emails.filter(email => email !== selectedEmail);
+        setSelectedEmail(remaining.length > 0 ? remaining[0] : '');
+      })
+      .catch(err => console.error('Error deleting email:', err));
   };
 
   const handleSendEmail = () => {
@@ -100,7 +105,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
       alert("No suggested email available to send.");
       return;
     }
-  
+
     const packageData = {
       LecturerEmail: recognizedEmail, // Use the suggested email explicitly
       ItemCount: parseInt(itemCount, 10),
@@ -108,7 +113,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
       AdditionalInfo: providerDescription,
       CollectionDate: new Date(),
     };
-  
+
     fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -129,41 +134,44 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
       });
   };
 
-  // New send email button based solely on the chosen email.
   const handleSendEmailWithChosenEmail = () => {
-  const packageData = {
-    LecturerEmail: selectedEmail,
-    ItemCount: parseInt(itemCount, 10),
-    ShippingProvider: shippingProvider,
-    AdditionalInfo: providerDescription,
-    CollectionDate: new Date(),
-  };
+    const packageData = {
+      LecturerEmail: selectedEmail,
+      ItemCount: parseInt(itemCount, 10),
+      ShippingProvider: shippingProvider,
+      AdditionalInfo: providerDescription,
+      CollectionDate: new Date(),
+    };
 
-  fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/send-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(packageData),
-  })
-    .then(res => {
-      if (!res.ok) throw new Error('Error sending package data with chosen email');
-      return res.json();
+    fetch('https://wrexhamuni-ocr-webapp-deeaeydrf2fdcfdy.uksouth-01.azurewebsites.net/api/package/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(packageData),
     })
-    .then(data => {
-      alert("Package record created successfully. Email sent to chosen lecturer.");
-      fetchPackages(); // Update the package log
-      setItemCount(1); // Reset the item count to 1
-      setProviderDescription(""); // Clear the additional information
-    })
-    .catch(err => {
-      console.error('Error sending package data with chosen email:', err);
-    });
-};
+      .then(res => {
+        if (!res.ok) throw new Error('Error sending package data with chosen email');
+        return res.json();
+      })
+      .then(data => {
+        alert("Package record created successfully. Email sent to chosen lecturer.");
+        fetchPackages(); // Update the package log
+        setItemCount(1); // Reset the item count to 1
+        setProviderDescription(""); // Clear the additional information
+      })
+      .catch(err => {
+        console.error('Error sending package data with chosen email:', err);
+      });
+  };
 
   return (
     <div className="email-selector">
       {/* Send Email/Log Information section above email selection */}
       <div className="send-email-section">
-      <p>Suggested Lecturer Email: {recognizedEmail}</p>
+        {loading && <p>Processing... Please wait.</p>} {/* Show loading indicator */}
+        {error && <p style={{ color: 'red' }}>{error}</p>} {/* Show error message */}
+        {!loading && recognizedEmail && (
+          <p>Suggested Lecturer Email: {recognizedEmail}</p>
+        )}
         <button onClick={handleSendEmail}>Send Email/Log Information</button>
       </div>
 
@@ -178,7 +186,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
           </select>
           <button onClick={handleDeleteEmail}>Delete chosen E-Mail</button>
         </div>
-  
+
         <div className="new-lecturer">
           <h2>Add new Lecturer</h2>
           <input
@@ -196,7 +204,7 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
           <button onClick={handleAddEmail}>Add Lecturer</button>
         </div>
       </div>
-  
+
       {/* Shipping Provider and Item Count section */}
       <div className="shipping-container">
         <div className="item-count">
@@ -220,13 +228,13 @@ const EmailSelector = ({ ocrText, fetchPackages }) => {
           </select>
         </div>
       </div>
-  
+
       {/* Additional Information Box and new send button under it */}
       <div className="additional-info-section" style={{ marginTop: '20px', textAlign: 'center' }}>
         <h4>Additional Information</h4>
-        <textarea 
-          placeholder="Type your custom information here..." 
-          value={providerDescription} 
+        <textarea
+          placeholder="Type your custom information here..."
+          value={providerDescription}
           onChange={e => setProviderDescription(e.target.value)}
           style={{ width: '90%', height: '60px', padding: '0.5em', borderRadius: '4px', border: '1px solid #ccc' }}
         ></textarea>

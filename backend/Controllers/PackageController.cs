@@ -28,7 +28,6 @@ namespace WebApplication1.Controllers
                 return BadRequest("Missing required package data.");
             }
 
-            // Ensure CollectionDate only contains the date part (or defaults to current UTC date)
             if (package.CollectionDate.HasValue)
             {
                 package.CollectionDate = package.CollectionDate.Value.Date;
@@ -38,7 +37,6 @@ namespace WebApplication1.Controllers
                 package.CollectionDate = DateTime.UtcNow.Date;
             }
 
-            // Set default status if not provided
             if (string.IsNullOrWhiteSpace(package.Status))
             {
                 package.Status = "Received";
